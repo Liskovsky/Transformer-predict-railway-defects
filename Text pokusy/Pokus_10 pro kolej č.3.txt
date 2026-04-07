@@ -1,0 +1,124 @@
+Pokus_10 pro kolej č.3:
+
+import os
+import io
+import math
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader, TensorDataset
+
+# ==========================================
+# 1. KONFIGURACE
+# ==========================================
+class Config:
+    # sekvence
+    window_size = 80
+
+    # model
+    embed_size = 64
+    n_heads = 4
+    n_layers = 3
+    dropout = 0.3
+
+    # trénink
+    batch_size = 32
+    lr = 2e-4
+    epochs = 60
+    weight_decay = 1e-4
+
+    # tokenizace
+    default_num_bins = 128
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+config = Config()
+
+# ==========================================
+# 2. VÝBĚR SLOUPCŮ PRO MODEL A
+#    G1 + G2 + D1 + D2 -> G3(posun, zdvih)
+# ==========================================
+
+G1_FEATURES = [
+    'posun [mm]_G1',
+    'zdvih [mm]_G1',
+]
+
+G2_FEATURES = [
+    'posun [mm]_G2',
+    'zdvih [mm]_G2',
+]
+
+D1_FEATURES = [
+    'Cant_D1',
+    'Twist_D1',
+    'LevelLeft_D1',
+    'LevelRight_D1',
+]
+
+D2_FEATURES = [
+    'Cant_D2',
+    'Twist_D2',
+    'LevelLeft_D2',
+    'LevelRight_D2',
+]
+
+DELTA_FEATURES = [
+    'delta_posun',
+    'delta_zdvih',
+]
+
+ROLLING_FEATURES = [
+    'posun_G2_roll5', 
+    'zdvih_G2_roll5',
+]
+
+ALL_INPUT_FEATURES = (
+    G1_FEATURES + 
+    G2_FEATURES + 
+    D1_FEATURES + 
+    D2_FEATURES + 
+    DELTA_FEATURES + 
+    ROLLING_FEATURES
+)
+
+TARGETS = ['posun [mm]_G3',
+           'zdvih [mm]_G3',
+]
+
+Běžíš v Colabu. Vyber soubor .xlsx:
+Merched_Analyza_K3.xlsx
+Merched_Analyza_K3.xlsx(application/vnd.openxmlformats-officedocument.spreadsheetml.sheet) - 507553 bytes, last modified: 6. 3. 2026 - 100% done
+Saving Merched_Analyza_K3.xlsx to Merched_Analyza_K3 (2).xlsx
+Načítám data ze souboru: Merched_Analyza_K3 (2).xlsx
+
+Kontrola dat OK
+Počet řádků: 1713
+Počet vstupních feature: 16
+Targety: ['posun [mm]_G3', 'zdvih [mm]_G3']
+
+X shape: torch.Size([1633, 80, 16])
+y shape: torch.Size([1633, 2])
+
+
+Start tréninku na: cuda
+Epoch 01 | Loss: 8.5473 | MAE posun: 6.285 mm | MAE zdvih: 13.905 mm
+Epoch 05 | Loss: 4.6961 | MAE posun: 5.777 mm | MAE zdvih: 13.530 mm
+Epoch 10 | Loss: 2.8532 | MAE posun: 5.078 mm | MAE zdvih: 12.995 mm
+Epoch 15 | Loss: 2.0322 | MAE posun: 6.203 mm | MAE zdvih: 12.718 mm
+Epoch 20 | Loss: 1.6081 | MAE posun: 6.230 mm | MAE zdvih: 13.200 mm
+Epoch 25 | Loss: 1.3791 | MAE posun: 6.348 mm | MAE zdvih: 12.865 mm
+Epoch 30 | Loss: 1.2336 | MAE posun: 6.292 mm | MAE zdvih: 12.735 mm
+Epoch 35 | Loss: 1.1389 | MAE posun: 6.178 mm | MAE zdvih: 13.107 mm
+Epoch 40 | Loss: 1.0739 | MAE posun: 6.305 mm | MAE zdvih: 12.813 mm
+Epoch 45 | Loss: 1.0394 | MAE posun: 6.384 mm | MAE zdvih: 12.542 mm
+Epoch 50 | Loss: 1.0074 | MAE posun: 6.424 mm | MAE zdvih: 12.931 mm
+Epoch 55 | Loss: 0.9900 | MAE posun: 6.740 mm | MAE zdvih: 12.760 mm
+Epoch 60 | Loss: 0.9670 | MAE posun: 6.217 mm | MAE zdvih: 12.887 mm
+
+Načten nejlepší model z epochy 12 | score=18.069
+
+Finální MAE posun: 5.284 mm
+Finální MAE zdvih: 12.786 mm

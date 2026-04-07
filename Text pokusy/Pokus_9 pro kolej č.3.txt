@@ -1,0 +1,106 @@
+Pokus_9 pro kolej č.3:
+
+import os
+import io
+import math
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader, TensorDataset
+
+# ==========================================
+# 1. KONFIGURACE
+# ==========================================
+class Config:
+    # sekvence
+    window_size = 100
+
+    # model
+    embed_size = 96
+    n_heads = 4
+    n_layers = 4
+    dropout = 0.3
+
+    # trénink
+    batch_size = 32
+    lr = 2e-4
+    epochs = 50
+    weight_decay = 1e-4
+
+    # tokenizace
+    default_num_bins = 256
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+config = Config()
+
+# ==========================================
+# 2. VÝBĚR SLOUPCŮ PRO MODEL A
+#    G1 + G2 + D1 + D2 -> G3(posun, zdvih)
+# ==========================================
+
+G1_FEATURES = [
+    'posun [mm]_G1',
+    'zdvih [mm]_G1',
+]
+
+G2_FEATURES = [
+    'posun [mm]_G2',
+    'zdvih [mm]_G2',
+]
+
+D1_FEATURES = [
+    'Cant_D1',
+    'Twist_D1',
+    'LevelLeft_D1',
+    'LevelRight_D1',
+]
+
+D2_FEATURES = [
+    'Cant_D2',
+    'Twist_D2',
+    'LevelLeft_D2',
+    'LevelRight_D2',
+]
+
+DELTA_FEATURES = [
+    'delta_posun',
+    'delta_zdvih',
+]
+
+TARGETS = [
+    'posun [mm]_G3',
+    'zdvih [mm]_G3',
+]
+
+ALL_INPUT_FEATURES = (
+    G1_FEATURES +
+    G2_FEATURES +
+    D1_FEATURES +
+    D2_FEATURES +
+    DELTA_FEATURES
+)
+
+X shape: torch.Size([1613, 100, 14])
+y shape: torch.Size([1613, 2])
+
+
+Start tréninku na: cuda
+Epoch 01 | Loss: 9.6358 | MAE posun: 6.339 mm | MAE zdvih: 14.214 mm
+Epoch 05 | Loss: 5.3228 | MAE posun: 6.243 mm | MAE zdvih: 13.289 mm
+Epoch 10 | Loss: 3.1675 | MAE posun: 5.924 mm | MAE zdvih: 13.747 mm
+Epoch 15 | Loss: 2.1761 | MAE posun: 6.175 mm | MAE zdvih: 13.541 mm
+Epoch 20 | Loss: 1.6423 | MAE posun: 6.184 mm | MAE zdvih: 13.066 mm
+Epoch 25 | Loss: 1.3572 | MAE posun: 6.192 mm | MAE zdvih: 13.042 mm
+Epoch 30 | Loss: 1.2091 | MAE posun: 6.230 mm | MAE zdvih: 12.939 mm
+Epoch 35 | Loss: 1.1292 | MAE posun: 6.001 mm | MAE zdvih: 13.028 mm
+Epoch 40 | Loss: 1.0767 | MAE posun: 6.215 mm | MAE zdvih: 12.753 mm
+Epoch 45 | Loss: 1.0516 | MAE posun: 6.260 mm | MAE zdvih: 13.043 mm
+Epoch 50 | Loss: 1.0313 | MAE posun: 6.494 mm | MAE zdvih: 12.837 mm
+
+Načten nejlepší model z epochy 8 | score=18.877
+
+Finální MAE posun: 5.791 mm
+Finální MAE zdvih: 13.085 mm

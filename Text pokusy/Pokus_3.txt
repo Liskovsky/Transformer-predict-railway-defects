@@ -1,0 +1,103 @@
+Pokus_3:
+import os
+import io
+import math
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader, TensorDataset
+
+# ==========================================
+# 1. KONFIGURACE
+# ==========================================
+class Config:
+    # sekvence
+    window_size = 120
+
+    # model
+    embed_size = 96
+    n_heads = 4
+    n_layers = 4
+    dropout = 0.15
+
+    # trénink
+    batch_size = 32
+    lr = 2e-4
+    epochs = 40
+    weight_decay = 1e-4
+
+    # tokenizace
+    default_num_bins = 128
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+config = Config()
+
+# ==========================================
+# 2. VÝBĚR SLOUPCŮ PRO MODEL A
+#    G1 + G2 + D1 + D2 -> G3(posun, zdvih)
+# ==========================================
+
+G1_FEATURES = [
+    'posun [mm]_G1',
+    'zdvih [mm]_G1',
+]
+
+G2_FEATURES = [
+    'posun [mm]_G2',
+    'zdvih [mm]_G2',
+]
+
+D1_FEATURES = [
+    'Cant_D1',
+    'Gauge_D1',
+    'Twist_D1',
+
+    'Speed_D1',
+]
+
+D2_FEATURES = [
+    'Cant_D2',
+    'Gauge_D2',
+    'Twist_D2',
+
+    'Speed_D2',
+]
+
+TARGETS = [
+    'posun [mm]_G3',
+    'zdvih [mm]_G3',
+]
+
+ALL_INPUT_FEATURES = G1_FEATURES + G2_FEATURES + D1_FEATURES + D2_FEATURES
+
+Běžíš v Colabu. Vyber soubor .xlsx:
+Merched_Analyza_K1.xlsx
+Merched_Analyza_K1.xlsx(application/vnd.openxmlformats-officedocument.spreadsheetml.sheet) - 698588 bytes, last modified: 10. 3. 2026 - 100% done
+Saving Merched_Analyza_K1.xlsx to Merched_Analyza_K1 (2).xlsx
+Načítám data ze souboru: Merched_Analyza_K1 (2).xlsx
+
+Kontrola dat OK
+Počet řádků: 1961
+Počet vstupních feature: 12
+Targety: ['posun [mm]_G3', 'zdvih [mm]_G3']
+
+X shape: torch.Size([1841, 120, 14])
+y shape: torch.Size([1841, 2])
+
+
+Start tréninku na: cuda
+Epoch 01 | Loss: 7.9067 | MAE posun: 4.523 mm | MAE zdvih: 6.328 mm
+Epoch 05 | Loss: 3.8724 | MAE posun: 4.075 mm | MAE zdvih: 5.707 mm
+Epoch 10 | Loss: 2.3442 | MAE posun: 4.003 mm | MAE zdvih: 6.154 mm
+Epoch 15 | Loss: 1.6553 | MAE posun: 3.980 mm | MAE zdvih: 5.772 mm
+Epoch 20 | Loss: 1.3033 | MAE posun: 4.012 mm | MAE zdvih: 5.983 mm
+Epoch 25 | Loss: 1.1281 | MAE posun: 4.015 mm | MAE zdvih: 5.989 mm
+Epoch 30 | Loss: 1.0356 | MAE posun: 4.009 mm | MAE zdvih: 5.872 mm
+Epoch 35 | Loss: 0.9895 | MAE posun: 4.082 mm | MAE zdvih: 6.039 mm
+Epoch 40 | Loss: 0.9596 | MAE posun: 4.086 mm | MAE zdvih: 5.987 mm
+
+Finální MAE posun: 4.086 mm
+Finální MAE zdvih: 5.987 mm
